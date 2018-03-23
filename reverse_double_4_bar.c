@@ -4,8 +4,8 @@
 #pragma config(Sensor, in4, gyro, sensorGyro)
 #pragma config(Sensor, dgtl1, yWheelEncoder1, sensorQuadEncoder)
 #pragma config(Sensor, dgtl3, xWheelEncoder1, sensorQuadEncoder)
-#pragma config(Motor,  port1, frontLeftWheel, tmotorVex393_HBridge, openLoop)
-#pragma config(Motor,  port2, backLeftWheel, tmotorVex393_MC29, openLoop)
+#pragma config(Motor,  port2, frontLeftWheel, tmotorVex393_HBridge, openLoop)
+#pragma config(Motor,  port1, backLeftWheel, tmotorVex393_MC29, openLoop)
 #pragma config(Motor,  port3, frontRightWheel, tmotorVex393_MC29, openLoop)
 #pragma config(Motor,  port4, backRightWheel, tmotorVex393_MC29, openLoop)
 #pragma config(Motor,  port5, topLeftArm,    tmotorVex393_MC29, openLoop)
@@ -36,6 +36,8 @@ task main()
 	{
 		//variables
 		int X1 = 0, Y1 = 0, X2 = 0;
+		int leftWheels = 0;
+		int rightWheels = 0;
 		int threshold = 15;
 	//	int speed[] = {0, 64, 128, 192, 256};
 		//wheel control
@@ -43,14 +45,23 @@ task main()
 		if(abs(vexRT[Ch3]) > threshold) Y1 = vexRT[Ch3];
 		else Y1 = 0;
 		if(abs(vexRT[Ch4]) > threshold) X1 = vexRT[Ch4];
-		else Y1 = 0;
-		if(abs(vexRT[Ch1]) > threshold) X2 = vexRT[Ch1];
+		else X1 = 0;
+		if(abs(vexRT[Ch1]) > threshold)
+		{
+			leftWheels = vexRT[Ch1];
+			rightWheels = vexRT[Ch1];
+		}
 		else X2 = 0;
-		//remote control
-		motor[frontRightWheel] = Y1 + X2 - X1;//3+1-4
-		motor[backRightWheel] = Y1 + X2 + X1;//3+1+4
-		motor[frontLeftWheel] = Y1 - X2 + X1;//3-1+4
-		motor[backLeftWheel] = Y1 - X2 - X1; //3-1-4
+
+		if(abs(vexRT[Ch2]) > threshold)
+		{
+			leftWheels = leftWheels + vexRT[Ch2];
+			rightWheels = rightWheels - vexRT[Ch2];
+		}
+		motor[frontRightWheel] = rightWheels;
+		motor[backRightWheel] = rightWheels;
+		motor[frontLeftWheel] = leftWheels;
+		motor[backLeftWheel] = leftWheels;
 
 		//arm control
 		if(vexRT[Btn5U] == 1)
